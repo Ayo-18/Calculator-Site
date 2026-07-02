@@ -6,6 +6,7 @@ A React calculator with **Standard** and **Scientific** modes, live result previ
 
 - Standard arithmetic (+, −, ×, ÷, %)
 - Scientific mode: sin, cos, tan, log, ln, x², xʸ, √, memory, and more
+- **Engineering mode**: base converter, bitwise ops, logic gates, subnet calculator, hash generator, VLSM planner
 - Live preview before pressing `=`
 - Side-by-side layout in Scientific mode
 - Keyboard support

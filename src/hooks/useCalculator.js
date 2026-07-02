@@ -23,7 +23,7 @@ const INITIAL_STATE = {
 function loadPlan() {
   try {
     const saved = localStorage.getItem("calculatorPlan");
-    if (saved === "scientific" || saved === "standard") return saved;
+    if (saved === "scientific" || saved === "standard" || saved === "engineering") return saved;
   } catch {
     /* ignore */
   }
@@ -46,17 +46,6 @@ export function useCalculator() {
     } catch {
       /* ignore */
     }
-  }, []);
-
-  const setResult = useCallback((value, history = "") => {
-    setState((prev) => ({
-      ...prev,
-      currentValue: normalizeResult(value),
-      historyLine: history,
-      shouldResetDisplay: true,
-      operator: null,
-      previousValue: "",
-    }));
   }, []);
 
   const clearAll = useCallback(() => {

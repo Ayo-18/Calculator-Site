@@ -139,11 +139,6 @@ export function applyFunctionOp(fnName, value, angleMode) {
         result: value < 0 ? "Error" : Math.sqrt(value),
         label: `√(${formatDisplay(String(value))})`,
       };
-    case "exp":
-      return {
-        result: Math.exp(value),
-        label: `e^(${formatDisplay(String(value))})`,
-      };
     default:
       return null;
   }
