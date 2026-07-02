@@ -341,13 +341,6 @@ body {
   background: linear-gradient(145deg, #55efc4, #00b894);
 }
 
-.btn-zero {
-  grid-column: span 2;
-  border-radius: calc(var(--btn-size) / 2 + 4px);
-  text-align: left;
-  padding-left: 22px;
-}
-
 /* Small screens: stack panels, keep equal width */
 @media (max-width: 680px) {
   :root {

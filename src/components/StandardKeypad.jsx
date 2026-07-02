@@ -2,7 +2,7 @@ import { CalcButton } from "./CalcButton";
 
 const STANDARD_BUTTONS = [
   { action: "clear", label: "AC", className: "btn-fn" },
-  { action: "toggle-sign", label: "±", className: "btn-fn" },
+  { action: "backspace", label: "⌫", className: "btn-fn" },
   { action: "percent", label: "%", className: "btn-fn" },
   { action: "operator", value: "/", label: "÷", className: "btn-op" },
   { action: "digit", value: "7", label: "7", className: "btn-num" },
@@ -17,7 +17,8 @@ const STANDARD_BUTTONS = [
   { action: "digit", value: "2", label: "2", className: "btn-num" },
   { action: "digit", value: "3", label: "3", className: "btn-num" },
   { action: "operator", value: "+", label: "+", className: "btn-op" },
-  { action: "digit", value: "0", label: "0", className: "btn-num btn-zero" },
+  { action: "toggle-sign", label: "±", className: "btn-num" },
+  { action: "digit", value: "0", label: "0", className: "btn-num" },
   { action: "decimal", label: ".", className: "btn-num" },
   { action: "equals", label: "=", className: "btn-equals" },
 ];

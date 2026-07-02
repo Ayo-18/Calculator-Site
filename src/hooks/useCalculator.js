@@ -283,6 +283,19 @@ export function useCalculator() {
     });
   }, []);
 
+  const backspace = useCallback(() => {
+    setState((prev) => {
+      if (prev.currentValue === "Error" || prev.shouldResetDisplay) {
+        return INITIAL_STATE;
+      }
+
+      const currentValue =
+        prev.currentValue.length > 1 ? prev.currentValue.slice(0, -1) : "0";
+
+      return { ...prev, currentValue, historyLine: "" };
+    });
+  }, []);
+
   const handleAction = useCallback(
     (action, value) => {
       switch (action) {
@@ -303,6 +316,9 @@ export function useCalculator() {
           break;
         case "clear":
           clearAll();
+          break;
+        case "backspace":
+          backspace();
           break;
         case "toggle-sign":
           toggleSign();
@@ -336,6 +352,7 @@ export function useCalculator() {
       setOperator,
       calculate,
       clearAll,
+      backspace,
       toggleSign,
       percent,
       toggleAngleMode,
@@ -345,19 +362,6 @@ export function useCalculator() {
       handleMemory,
     ]
   );
-
-  const backspace = useCallback(() => {
-    setState((prev) => {
-      if (prev.currentValue === "Error" || prev.shouldResetDisplay) {
-        return INITIAL_STATE;
-      }
-
-      const currentValue =
-        prev.currentValue.length > 1 ? prev.currentValue.slice(0, -1) : "0";
-
-      return { ...prev, currentValue, historyLine: "" };
-    });
-  }, []);
 
   useEffect(() => {
     const onKeyDown = (e) => {
