@@ -2,8 +2,6 @@
 
 A React calculator with **Standard** and **Scientific** modes, live result preview, and memory functions.
 
-🔗 **Live site:** https://ayo-18.github.io/Calculator-Site/ (see [Deploy](#deploy-to-github-pages) below to turn this on)
-
 ## Features
 
 - Standard arithmetic (+, −, ×, ÷, %)
@@ -34,23 +32,6 @@ Or double-click **`START CALCULATOR.bat`** on Windows.
 npm run build
 npm run preview
 ```
-
-## Deploy to GitHub Pages
-
-This repo includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically builds and publishes the site to GitHub Pages every time you push to `main`.
-
-**One-time setup** (only needed once per repo):
-
-1. Go to `https://github.com/Ayo-18/Calculator-Site/settings/pages`
-2. Under **Build and deployment → Source**, select **GitHub Actions**
-
-After that, every push to `main` triggers a build and the live site updates automatically at:
-
-```
-https://ayo-18.github.io/Calculator-Site/
-```
-
-You can also trigger a deploy manually from the **Actions** tab → **Deploy to GitHub Pages** → **Run workflow**.
 
 ## Collaborators
 
