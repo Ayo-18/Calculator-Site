@@ -1,0 +1,383 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --panel-width: 300px;
+  --btn-size: 58px;
+  --btn-gap: 10px;
+  --keypad-rows: 5;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.calculator {
+  width: min(var(--panel-width), 92vw);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calculator[data-plan="scientific"] {
+  width: min(calc(var(--panel-width) * 2 + 17px), 98vw);
+}
+
+/* ── Plan switch ── */
+.plan-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.plan-btn {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.plan-btn.active {
+  color: #fff;
+}
+
+.plan-btn:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.plan-slider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: linear-gradient(145deg, #4a6fa5, #3d5a80);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.calculator[data-plan="scientific"] .plan-slider {
+  transform: translateX(100%);
+  background: linear-gradient(145deg, #6c5ce7, #5b4cdb);
+}
+
+/* ── Display ── */
+.display {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  text-align: right;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.expression {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.45);
+  min-height: 1.4em;
+  word-break: break-all;
+  margin-bottom: 2px;
+}
+
+.preview {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(85, 239, 196, 0.55);
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+  word-break: break-all;
+  opacity: 0;
+  transition: opacity 0.15s ease, max-height 0.15s ease, margin 0.15s ease;
+}
+
+.preview.visible {
+  min-height: 1.3em;
+  max-height: 2em;
+  margin-bottom: 4px;
+  opacity: 1;
+}
+
+.result {
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.1;
+  word-break: break-all;
+  transition: font-size 0.15s ease;
+}
+
+.result.shrink {
+  font-size: 1.8rem;
+}
+
+.memory-bar {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 159, 67, 0.9);
+  min-height: 1em;
+  padding: 0 4px 12px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.memory-bar.active {
+  opacity: 1;
+}
+
+/* ── Side-by-side body — equal panels ── */
+.calculator-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.standard-panel,
+.scientific-panel {
+  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.scientific-panel {
+  flex: 0 0 0;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  border-right: 0 solid rgba(255, 255, 255, 0.1);
+  padding-right: 0;
+  margin-right: 0;
+  transition:
+    flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease,
+    padding 0.4s ease,
+    margin 0.4s ease,
+    border-width 0.4s ease;
+}
+
+.calculator[data-plan="scientific"] .calculator-body {
+  gap: 16px;
+}
+
+.calculator[data-plan="scientific"] .scientific-panel {
+  flex: 1 1 0;
+  width: var(--panel-width);
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  border-right-width: 1px;
+  padding-right: 16px;
+  margin-right: 0;
+}
+
+.calculator[data-plan="scientific"] .standard-panel {
+  flex: 1 1 0;
+  width: var(--panel-width);
+}
+
+/* ── Shared keypad grid (same size both sides) ── */
+.keypad,
+.sci-keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(var(--keypad-rows), var(--btn-size));
+  gap: var(--btn-gap);
+  height: calc(
+    var(--keypad-rows) * var(--btn-size) +
+    (var(--keypad-rows) - 1) * var(--btn-gap)
+  );
+}
+
+.btn {
+  border: none;
+  border-radius: 50%;
+  height: var(--btn-size);
+  min-height: var(--btn-size);
+  max-height: var(--btn-size);
+  font-size: 1.25rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.93);
+}
+
+.btn-sci {
+  background: rgba(100, 149, 237, 0.15);
+  color: #9ec5fe;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 50%;
+}
+
+.btn-sci:hover {
+  background: rgba(100, 149, 237, 0.28);
+}
+
+.btn-sci.active {
+  background: #fff;
+  color: #4a6fa5;
+  box-shadow: 0 0 0 2px #6c5ce7;
+}
+
+.btn-deg {
+  background: rgba(168, 216, 255, 0.15);
+  color: #a8d8ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.btn-deg:hover {
+  background: rgba(168, 216, 255, 0.28);
+}
+
+.btn-deg.rad {
+  background: rgba(255, 159, 67, 0.25);
+  color: #ffb366;
+}
+
+.btn-num {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-num:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.btn-fn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #a8d8ff;
+  font-size: 1rem;
+}
+
+.btn-fn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.btn-op {
+  background: linear-gradient(145deg, #ff9f43, #ee5a24);
+  color: #fff;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
+}
+
+.btn-op:hover {
+  background: linear-gradient(145deg, #ffb366, #ff6b35);
+}
+
+.btn-op.active {
+  background: #fff;
+  color: #ee5a24;
+  box-shadow: 0 0 0 2px #ee5a24;
+}
+
+.btn-equals {
+  background: linear-gradient(145deg, #00b894, #00a085);
+  color: #fff;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.btn-equals:hover {
+  background: linear-gradient(145deg, #55efc4, #00b894);
+}
+
+.btn-zero {
+  grid-column: span 2;
+  border-radius: calc(var(--btn-size) / 2 + 4px);
+  text-align: left;
+  padding-left: 22px;
+}
+
+/* Small screens: stack panels, keep equal width */
+@media (max-width: 680px) {
+  :root {
+    --btn-size: 52px;
+    --btn-gap: 8px;
+  }
+
+  .calculator[data-plan="scientific"] {
+    width: min(var(--panel-width), 96vw);
+  }
+
+  .calculator-body {
+    flex-direction: column;
+  }
+
+  .calculator[data-plan="scientific"] .scientific-panel {
+    width: 100%;
+    flex: none;
+    border-right-width: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-right: 0;
+    padding-bottom: 16px;
+    margin-bottom: 0;
+  }
+
+  .calculator[data-plan="scientific"] .standard-panel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  :root {
+    --btn-size: 46px;
+    --btn-gap: 7px;
+  }
+
+  .btn {
+    font-size: 1.1rem;
+  }
+
+  .btn-sci {
+    font-size: 0.72rem;
+  }
+
+  .result {
+    font-size: 2.2rem;
+  }
+}
