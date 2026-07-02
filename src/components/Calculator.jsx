@@ -71,10 +71,9 @@ export default function Calculator() {
           <ScientificPanel
             plan={plan}
             angleMode={state.angleMode}
-            operator={state.operator}
             onAction={handleAction}
           />
-          <StandardKeypad operator={state.operator} onAction={handleAction} />
+          <StandardKeypad onAction={handleAction} />
         </div>
       )}
 

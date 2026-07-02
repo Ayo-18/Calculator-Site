@@ -308,12 +308,6 @@ body {
   background: rgba(100, 149, 237, 0.28);
 }
 
-.btn-sci.active {
-  background: #fff;
-  color: #4a6fa5;
-  box-shadow: 0 0 0 2px #6c5ce7;
-}
-
 .btn-deg {
   background: rgba(168, 216, 255, 0.15);
   color: #a8d8ff;
@@ -361,10 +355,11 @@ body {
   background: linear-gradient(145deg, #ffb366, #ff6b35);
 }
 
-.btn-op.active {
-  background: #fff;
-  color: #ee5a24;
-  box-shadow: 0 0 0 2px #ee5a24;
+/* Samsung-style tap feedback: a quick darker flash that releases the
+   instant you lift your finger, instead of staying inverted/"held" while
+   the operator is pending — the expression line above already shows that. */
+.btn-op:active {
+  background: linear-gradient(145deg, #d35400, #b8460c);
 }
 
 .btn-equals {

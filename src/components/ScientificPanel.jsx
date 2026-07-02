@@ -23,7 +23,7 @@ const SCI_BUTTONS = [
   { action: "toggle-angle", value: "deg", label: "DEG", isDeg: true },
 ];
 
-export function ScientificPanel({ plan, angleMode, operator, onAction }) {
+export function ScientificPanel({ plan, angleMode, onAction }) {
   return (
     <aside
       className="scientific-panel"
@@ -57,7 +57,6 @@ export function ScientificPanel({ plan, angleMode, operator, onAction }) {
               value={btn.value}
               label={btn.label}
               className="btn-sci"
-              active={btn.action === "operator" && operator === btn.value}
               onAction={onAction}
             />
           );

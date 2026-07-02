@@ -1,8 +1,8 @@
-export function CalcButton({ action, value, label, className = "", active = false, onAction }) {
+export function CalcButton({ action, value, label, className = "", onAction }) {
   return (
     <button
       type="button"
-      className={`btn ${className}${active ? " active" : ""}`}
+      className={`btn ${className}`}
       onClick={(e) => {
         onAction(action, value);
         // Release the mobile :active/:focus press-state immediately so the

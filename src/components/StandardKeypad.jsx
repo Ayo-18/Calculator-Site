@@ -23,7 +23,7 @@ const STANDARD_BUTTONS = [
   { action: "equals", label: "=", className: "btn-equals" },
 ];
 
-export function StandardKeypad({ operator, onAction }) {
+export function StandardKeypad({ onAction }) {
   return (
     <div className="standard-panel">
       <div className="keypad" id="keypad">
@@ -34,7 +34,6 @@ export function StandardKeypad({ operator, onAction }) {
             value={btn.value}
             label={btn.label}
             className={btn.className}
-            active={btn.action === "operator" && operator === btn.value}
             onAction={onAction}
           />
         ))}
