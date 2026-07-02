@@ -18,16 +18,29 @@ const INITIAL_STATE = {
   memory: 0,
   memoryActive: false,
   historyLine: "",
+  history: [],
 };
+
+const VALID_PLANS = ["standard", "scientific", "engineering"];
 
 function loadPlan() {
   try {
     const saved = localStorage.getItem("calculatorPlan");
-    if (saved === "scientific" || saved === "standard" || saved === "engineering") return saved;
+    if (VALID_PLANS.includes(saved)) return saved;
   } catch {
     /* ignore */
   }
   return "standard";
+}
+
+function loadHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("calculatorHistory"));
+    if (Array.isArray(saved)) return saved;
+  } catch {
+    /* ignore */
+  }
+  return [];
 }
 
 function normalizeResult(value) {
@@ -35,9 +48,20 @@ function normalizeResult(value) {
   return String(value);
 }
 
-export function useCalculator() {
+function pushHistoryEntry(history, expression, result) {
+  if (result === "Error" || result === null || result === undefined) return history;
+  const entry = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    expression,
+    result: String(result),
+    ts: Date.now(),
+  };
+  return [entry, ...history].slice(0, 30);
+}
+
+export function useCalculator(suppressKeyboard = false) {
   const [plan, setPlanState] = useState(loadPlan);
-  const [state, setState] = useState(INITIAL_STATE);
+  const [state, setState] = useState(() => ({ ...INITIAL_STATE, history: loadHistory() }));
 
   const setPlan = useCallback((nextPlan) => {
     setPlanState(nextPlan);
@@ -49,12 +73,14 @@ export function useCalculator() {
   }, []);
 
   const clearAll = useCallback(() => {
-    setState(INITIAL_STATE);
+    setState((prev) => ({ ...INITIAL_STATE, history: prev.history }));
   }, []);
 
   const inputDigit = useCallback((digit) => {
     setState((prev) => {
-      if (prev.currentValue === "Error") return { ...INITIAL_STATE, currentValue: digit };
+      if (prev.currentValue === "Error") {
+        return { ...INITIAL_STATE, currentValue: digit, history: prev.history };
+      }
 
       if (prev.shouldResetDisplay) {
         return { ...prev, historyLine: "", currentValue: digit, shouldResetDisplay: false };
@@ -69,7 +95,9 @@ export function useCalculator() {
 
   const inputDecimal = useCallback(() => {
     setState((prev) => {
-      if (prev.currentValue === "Error") return { ...INITIAL_STATE, currentValue: "0." };
+      if (prev.currentValue === "Error") {
+        return { ...INITIAL_STATE, currentValue: "0.", history: prev.history };
+      }
 
       if (prev.shouldResetDisplay) {
         return { ...prev, historyLine: "", currentValue: "0.", shouldResetDisplay: false };
@@ -119,9 +147,8 @@ export function useCalculator() {
       const result = computeOperation(prevNum, currNum, prev.operator);
       if (result === null) return prev;
 
-      const historyLine = showHistory
-        ? `${formatDisplay(prev.previousValue)} ${OP_SYMBOLS[prev.operator]} ${formatDisplay(String(currNum))} =`
-        : prev.historyLine;
+      const expr = `${formatDisplay(prev.previousValue)} ${OP_SYMBOLS[prev.operator]} ${formatDisplay(String(currNum))}`;
+      const historyLine = showHistory ? `${expr} =` : prev.historyLine;
 
       return {
         ...prev,
@@ -130,6 +157,7 @@ export function useCalculator() {
         previousValue: "",
         operator: null,
         shouldResetDisplay: true,
+        history: showHistory ? pushHistoryEntry(prev.history, expr, result) : prev.history,
       };
     });
   }, []);
@@ -167,13 +195,15 @@ export function useCalculator() {
         const value = parseFloat(prev.currentValue);
         const op = applyUnaryOp(fnName, value);
         if (!op) return prev;
+        const normalized = normalizeResult(op.result);
         return {
           ...prev,
-          currentValue: normalizeResult(op.result),
+          currentValue: normalized,
           historyLine: `${op.label} =`,
           shouldResetDisplay: true,
           operator: null,
           previousValue: "",
+          history: pushHistoryEntry(prev.history, op.label, normalized),
         };
       });
     },
@@ -187,13 +217,15 @@ export function useCalculator() {
         const value = parseFloat(prev.currentValue);
         const op = applyFunctionOp(fnName, value, prev.angleMode);
         if (!op) return prev;
+        const normalized = normalizeResult(op.result);
         return {
           ...prev,
-          currentValue: normalizeResult(op.result),
+          currentValue: normalized,
           historyLine: `${op.label} =`,
           shouldResetDisplay: true,
           operator: null,
           previousValue: "",
+          history: pushHistoryEntry(prev.history, op.label, normalized),
         };
       });
     },
@@ -224,13 +256,15 @@ export function useCalculator() {
       try {
         const inner = expr.replace(/^.*\(/, "").replace(/\)$/, "");
         const result = evaluateExpression(inner);
+        const normalized = normalizeResult(result);
         return {
           ...prev,
-          currentValue: normalizeResult(result),
+          currentValue: normalized,
           historyLine: `${expr} =`,
           shouldResetDisplay: true,
           operator: null,
           previousValue: "",
+          history: pushHistoryEntry(prev.history, expr, normalized),
         };
       } catch {
         return {
@@ -283,10 +317,29 @@ export function useCalculator() {
     });
   }, []);
 
+  const selectHistoryEntry = useCallback(
+    (result) => {
+      setState((prev) => ({
+        ...prev,
+        currentValue: normalizeResult(result),
+        historyLine: "",
+        shouldResetDisplay: true,
+        operator: null,
+        previousValue: "",
+      }));
+      setPlan("standard");
+    },
+    [setPlan]
+  );
+
+  const clearHistory = useCallback(() => {
+    setState((prev) => ({ ...prev, history: [] }));
+  }, []);
+
   const backspace = useCallback(() => {
     setState((prev) => {
       if (prev.currentValue === "Error" || prev.shouldResetDisplay) {
-        return INITIAL_STATE;
+        return { ...INITIAL_STATE, history: prev.history };
       }
 
       const currentValue =
@@ -341,6 +394,12 @@ export function useCalculator() {
         case "memory":
           handleMemory(value);
           break;
+        case "history-select":
+          selectHistoryEntry(value);
+          break;
+        case "history-clear":
+          clearHistory();
+          break;
         default:
           break;
       }
@@ -360,11 +419,25 @@ export function useCalculator() {
       applyUnary,
       insertParen,
       handleMemory,
+      selectHistoryEntry,
+      clearHistory,
     ]
   );
 
   useEffect(() => {
+    try {
+      localStorage.setItem("calculatorHistory", JSON.stringify(state.history));
+    } catch {
+      /* ignore */
+    }
+  }, [state.history]);
+
+  useEffect(() => {
     const onKeyDown = (e) => {
+      // While a History/Currency popup is open, let it own the keyboard
+      // (e.g. Escape should close the popup, not clear the calculator).
+      if (suppressKeyboard) return;
+
       if (e.key >= "0" && e.key <= "9") {
         if (state.currentValue === "Error") clearAll();
         inputDigit(e.key);
@@ -397,6 +470,7 @@ export function useCalculator() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [
+    suppressKeyboard,
     state.currentValue,
     inputDigit,
     inputDecimal,

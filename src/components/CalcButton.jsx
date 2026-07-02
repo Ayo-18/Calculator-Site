@@ -3,7 +3,12 @@ export function CalcButton({ action, value, label, className = "", active = fals
     <button
       type="button"
       className={`btn ${className}${active ? " active" : ""}`}
-      onClick={() => onAction(action, value)}
+      onClick={(e) => {
+        onAction(action, value);
+        // Release the mobile :active/:focus press-state immediately so the
+        // button visually "lets go" instead of appearing stuck/held down.
+        e.currentTarget.blur();
+      }}
     >
       {label}
     </button>

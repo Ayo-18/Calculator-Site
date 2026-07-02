@@ -44,6 +44,43 @@ body {
   width: min(680px, 98vw);
 }
 
+/* ── Header toolbar (history + currency icons, grouped together) ── */
+.calculator-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.toolbar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.toolbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.toolbar-icon-btn:active {
+  transform: scale(0.92);
+}
+
+.toolbar-icon-btn:focus {
+  outline: none;
+}
+
 /* ── Plan switch ── */
 .plan-switch {
   position: relative;
@@ -53,14 +90,6 @@ body {
   border-radius: 14px;
   padding: 4px;
   margin-bottom: 16px;
-}
-
-.plan-switch-3 {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.plan-switch-3 .plan-slider {
-  width: calc(33.333% - 2.67px);
 }
 
 .plan-btn {
@@ -259,6 +288,14 @@ body {
   transform: scale(0.93);
 }
 
+.btn:focus {
+  outline: none;
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
 .btn-sci {
   background: rgba(100, 149, 237, 0.15);
   color: #9ec5fe;
@@ -369,6 +406,18 @@ body {
   .calculator[data-plan="scientific"] .standard-panel {
     width: 100%;
   }
+
+  /* Animating width/flex-basis/padding/margin triggers layout reflow on
+     every frame, which is what makes mode switching feel slow on lower-end
+     phones. On small screens we skip that and just snap + fade instead. */
+  .calculator {
+    transition: none;
+  }
+
+  .scientific-panel,
+  .standard-panel {
+    transition: opacity 0.15s ease;
+  }
 }
 
 @media (max-width: 400px) {
@@ -454,11 +503,6 @@ body {
   border-color: #e8a33d;
   color: #e8a33d;
   background: rgba(232, 163, 61, 0.08);
-}
-
-.eng-tab-num {
-  font-size: 0.65rem;
-  opacity: 0.55;
 }
 
 .eng-panel {
@@ -718,5 +762,253 @@ body {
   .plan-btn {
     font-size: 0.65rem;
     padding: 10px 4px;
+  }
+}
+
+/* ── Currency converter ── */
+.currency-badge {
+  color: #2ecc71;
+}
+
+.currency-toolkit .eng-field {
+  margin-bottom: 14px;
+}
+
+.currency-pair-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.currency-pair-row .eng-field {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.currency-swap-btn {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.2s ease;
+}
+
+.currency-swap-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.currency-swap-btn:active {
+  transform: rotate(180deg);
+}
+
+.currency-status {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.currency-result {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 1.5rem;
+  color: #2ecc71;
+  word-break: break-all;
+}
+
+.currency-refresh-btn {
+  margin-top: 14px;
+  width: 100%;
+  border-color: rgba(46, 204, 113, 0.4);
+  background: rgba(46, 204, 113, 0.06);
+  color: #2ecc71;
+}
+
+.currency-refresh-btn:hover {
+  background: rgba(46, 204, 113, 0.14);
+}
+
+/* ── History panel ── */
+.history-badge {
+  color: #74b9ff;
+}
+
+.history-empty {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 2px;
+  margin-bottom: 14px;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.history-item:hover {
+  border-color: #74b9ff;
+  background: rgba(116, 185, 255, 0.08);
+}
+
+.history-expr {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.history-result {
+  font-family: ui-monospace, monospace;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.history-time {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.history-clear-btn {
+  width: 100%;
+  text-align: center;
+  border-color: rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.06);
+  color: #ff6b6b;
+}
+
+.history-clear-btn:hover {
+  background: rgba(255, 107, 107, 0.14);
+}
+
+/* ── Tool overlay (History / Currency) ──
+   Centered modal on desktop, slide-up bottom sheet on phones — the
+   breakpoint below matches the one used for the calculator's own layout. */
+.tool-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+  animation: overlay-fade-in 0.15s ease;
+}
+
+.tool-overlay {
+  position: relative;
+  width: min(380px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  animation: overlay-pop-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tool-overlay-handle {
+  display: none;
+}
+
+.tool-overlay-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tool-overlay-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.tool-overlay-close:focus {
+  outline: none;
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 680px) {
+  .tool-overlay-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .tool-overlay {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 20px 20px 0 0;
+    padding: 12px 18px 24px;
+    animation: sheet-slide-up 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .tool-overlay-handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 0 auto 14px;
+  }
+}
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }

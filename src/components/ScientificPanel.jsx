@@ -40,7 +40,10 @@ export function ScientificPanel({ plan, angleMode, operator, onAction }) {
                 type="button"
                 className={`btn btn-sci btn-deg${angleMode === "rad" ? " rad" : ""}`}
                 title="Switch Degrees / Radians"
-                onClick={() => onAction("toggle-angle")}
+                onClick={(e) => {
+                  onAction("toggle-angle");
+                  e.currentTarget.blur();
+                }}
               >
                 {angleMode.toUpperCase()}
               </button>

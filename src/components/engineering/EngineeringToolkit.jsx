@@ -8,41 +8,7 @@ import {
   calcSubnet,
   allocateVLSM,
 } from "../../utils/engineeringMath";
-
-function EngPanel({ children }) {
-  return <div className="eng-panel">{children}</div>;
-}
-
-function EngLabel({ children }) {
-  return <div className="eng-label">{children}</div>;
-}
-
-function EngMono({ children, className = "" }) {
-  return <div className={`eng-mono ${className}`.trim()}>{children}</div>;
-}
-
-function EngInput({ value, onChange, placeholder, invalid }) {
-  return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={`eng-input${invalid ? " eng-input-invalid" : ""}`}
-    />
-  );
-}
-
-function EngSelect({ value, onChange, options }) {
-  return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="eng-select">
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-  );
-}
+import { EngPanel, EngLabel, EngMono, EngInput, EngSelect } from "../shared/ToolUI";
 
 function BaseConverter() {
   const [active, setActive] = useState(10);
@@ -425,12 +391,12 @@ function VLSMPlanner() {
 }
 
 const TOOLS = [
-  { id: "base", label: "Base", num: "01", component: BaseConverter },
-  { id: "bitwise", label: "Bitwise", num: "02", component: BitwiseOps },
-  { id: "gates", label: "Gates", num: "03", component: LogicGates },
-  { id: "subnet", label: "Subnet", num: "04", component: SubnetCalculator },
-  { id: "hash", label: "Hash", num: "05", component: HashGenerator },
-  { id: "vlsm", label: "VLSM", num: "06", component: VLSMPlanner },
+  { id: "base", label: "Base", component: BaseConverter },
+  { id: "bitwise", label: "Bitwise", component: BitwiseOps },
+  { id: "gates", label: "Gates", component: LogicGates },
+  { id: "subnet", label: "Subnet", component: SubnetCalculator },
+  { id: "hash", label: "Hash", component: HashGenerator },
+  { id: "vlsm", label: "VLSM", component: VLSMPlanner },
 ];
 
 export function EngineeringToolkit() {
@@ -451,7 +417,6 @@ export function EngineeringToolkit() {
             onClick={() => setTab(t.id)}
             className={`eng-tab${tab === t.id ? " active" : ""}`}
           >
-            <span className="eng-tab-num">{t.num}</span>
             {t.label}
           </button>
         ))}
