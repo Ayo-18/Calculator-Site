@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { EngPanel, EngLabel, EngInput, EngSelect } from "./shared/ToolUI";
-import { POPULAR_CURRENCIES, CURRENCY_CODES, fetchRates } from "../utils/currency";
+import {
+  POPULAR_CURRENCIES,
+  CURRENCY_CODES,
+  fetchRates,
+  formatRateTimestamp,
+} from "../utils/currency";
 
 const CURRENCY_OPTIONS = POPULAR_CURRENCIES.map((c) => ({
   value: c.code,
@@ -23,18 +28,25 @@ export function CurrencyConverter() {
   const [{ from, to }, setPair] = useState(loadPair);
   const [amount, setAmount] = useState("1");
   const [rates, setRates] = useState(null);
-  const [date, setDate] = useState(null);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
+  const [fetchedAt, setFetchedAt] = useState(null);
   const [status, setStatus] = useState("loading");
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const loadRates = useCallback((base) => {
-    setStatus("loading");
-    fetchRates(base)
-      .then(({ rates: r, date: d }) => {
-        setRates(r);
-        setDate(d);
-        setStatus("idle");
-      })
-      .catch(() => setStatus("error"));
+  const loadRates = useCallback(async (base, { bustCache = false } = {}) => {
+    setStatus((prev) => (prev === "idle" ? "refreshing" : "loading"));
+    setErrorMessage(null);
+
+    try {
+      const result = await fetchRates(base, { bustCache });
+      setRates(result.rates);
+      setRateUpdatedAt(result.rateUpdatedAt);
+      setFetchedAt(result.fetchedAt);
+      setStatus("idle");
+    } catch {
+      setStatus((prev) => (prev === "refreshing" ? "idle" : "error"));
+      setErrorMessage("Couldn't reach the exchange rate service. Check your connection and try again.");
+    }
   }, []);
 
   useEffect(() => {
@@ -51,16 +63,21 @@ export function CurrencyConverter() {
 
   const numericAmount = parseFloat(amount);
   const rate = rates ? rates[to] : null;
+  const hasRate = rates && rate !== undefined;
   const converted =
-    rates && rate !== undefined && !isNaN(numericAmount) ? numericAmount * rate : null;
+    hasRate && !isNaN(numericAmount) ? numericAmount * rate : null;
 
   const swap = () => setPair((prev) => ({ from: prev.to, to: prev.from }));
+  const refresh = () => loadRates(from, { bustCache: true });
+
+  const isInitialLoad = status === "loading";
+  const isRefreshing = status === "refreshing";
 
   return (
     <div className="engineering-toolkit currency-toolkit">
       <div className="eng-header">
         <span className="eng-badge currency-badge">Currency</span>
-        <p className="eng-desc">Live market exchange rates, updated daily</p>
+        <p className="eng-desc">Live market exchange rates</p>
       </div>
 
       <div className="eng-field">
@@ -96,22 +113,50 @@ export function CurrencyConverter() {
       </div>
 
       <EngPanel>
-        {status === "loading" && <div className="currency-status">Fetching latest rates…</div>}
-        {status === "error" && (
-          <div className="eng-error">
-            Couldn't reach the exchange rate service. Check your connection and try again.
-          </div>
+        {isInitialLoad && <div className="currency-status">Fetching latest rates…</div>}
+
+        {status === "error" && !rates && (
+          <div className="eng-error">{errorMessage}</div>
         )}
-        {status === "idle" && converted !== null && (
+
+        {!isInitialLoad && rates && (
           <>
-            <EngLabel>Converted amount</EngLabel>
-            <div className="currency-result">
-              {converted.toLocaleString(undefined, { maximumFractionDigits: 2 })} {to}
+            {hasRate && converted !== null ? (
+              <>
+                <EngLabel>Converted amount</EngLabel>
+                <div className="currency-result">
+                  {converted.toLocaleString(undefined, { maximumFractionDigits: 2 })} {to}
+                </div>
+                <div className="eng-sub">
+                  1 {from} = {rate.toLocaleString(undefined, { maximumFractionDigits: 6 })} {to}
+                </div>
+              </>
+            ) : (
+              <div className="eng-error">
+                No rate available for {to}. Try another currency pair.
+              </div>
+            )}
+
+            <div className="currency-meta">
+              {rateUpdatedAt && (
+                <div className="currency-meta-line">
+                  <span className="currency-meta-label">Market rate date</span>
+                  <span>{formatRateTimestamp(rateUpdatedAt)}</span>
+                </div>
+              )}
+              {fetchedAt && (
+                <div className="currency-meta-line">
+                  <span className="currency-meta-label">Last refreshed</span>
+                  <span className={isRefreshing ? "currency-meta-updating" : ""}>
+                    {isRefreshing ? "Updating…" : formatRateTimestamp(fetchedAt)}
+                  </span>
+                </div>
+              )}
             </div>
-            <div className="eng-sub">
-              1 {from} = {rate.toLocaleString(undefined, { maximumFractionDigits: 6 })} {to}
-              {date ? ` · updated ${date}` : ""}
-            </div>
+
+            {errorMessage && status === "idle" && (
+              <div className="eng-error currency-refresh-error">{errorMessage}</div>
+            )}
           </>
         )}
       </EngPanel>
@@ -119,9 +164,10 @@ export function CurrencyConverter() {
       <button
         type="button"
         className="eng-add-btn currency-refresh-btn"
-        onClick={() => loadRates(from)}
+        onClick={refresh}
+        disabled={isInitialLoad || isRefreshing}
       >
-        ⟳ Refresh rates
+        ⟳ {isRefreshing ? "Refreshing…" : "Refresh rates"}
       </button>
     </div>
   );

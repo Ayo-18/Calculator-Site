@@ -7,7 +7,7 @@ A React calculator with **Standard** and **Scientific** modes, live result previ
 - Standard arithmetic (+, −, ×, ÷, %)
 - Scientific mode: sin, cos, tan, log, ln, x², xʸ, √, memory, and more
 - **Engineering mode**: base converter, bitwise ops, logic gates, subnet calculator, hash generator, VLSM planner
-- **Currency converter** (💱 icon): convert between 25+ currencies using live daily market exchange rates — opens as a quick popup, no need to leave your current mode
+- **Currency converter** (💱 icon): convert between 25+ currencies using live market exchange rates — refresh anytime to get updated rates with date/time stamp
 - **History** (🕘 icon): every calculation is saved (locally on your device) — tap one to reuse it, or clear it anytime
 - Delete (⌫) and clear (AC) keys, with matching Backspace/Escape keyboard shortcuts
 - Adapts to phone or desktop automatically — popups open as a bottom sheet on phones and a centered dialog on desktop
@@ -37,7 +37,10 @@ npm run preview
 
 Repository owner: [Ayo-18](https://github.com/Ayo-18)
 
-> **Note:** Collaborators are managed on GitHub only (Settings → Collaborators). Cursor/AI tools are not added as repository collaborators.
+| Tool | Collaborator |
+|------|--------------|
+| Cursor / AI | **false** — not added as a repository collaborator |
+| Human collaborators | Managed on GitHub only (Settings → Collaborators) |
 
 ## Tech stack
 

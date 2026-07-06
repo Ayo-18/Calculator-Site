@@ -31,20 +31,37 @@ export const POPULAR_CURRENCIES = [
 
 export const CURRENCY_CODES = POPULAR_CURRENCIES.map((c) => c.code);
 
-const RATES_ENDPOINT = "https://api.frankfurter.dev/v2/rates";
+const RATES_ENDPOINT = "https://open.er-api.com/v6/latest";
 
-export async function fetchRates(base) {
-  const res = await fetch(`${RATES_ENDPOINT}?base=${encodeURIComponent(base)}`);
+export function formatRateTimestamp(date) {
+  if (!date) return "";
+  return date.toLocaleString(undefined, {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+export async function fetchRates(base, { bustCache = false } = {}) {
+  const url = `${RATES_ENDPOINT}/${encodeURIComponent(base)}${bustCache ? `?_=${Date.now()}` : ""}`;
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch exchange rates");
 
-  const rows = await res.json();
-  if (!Array.isArray(rows)) throw new Error("Unexpected exchange rate response");
-
-  const rates = { [base]: 1 };
-  let date = null;
-  for (const row of rows) {
-    rates[row.quote] = row.rate;
-    date = row.date;
+  const data = await res.json();
+  if (data.result !== "success" || !data.rates) {
+    throw new Error("Unexpected exchange rate response");
   }
-  return { rates, date };
+
+  const rateUpdatedAt = data.time_last_update_utc
+    ? new Date(data.time_last_update_utc)
+    : null;
+
+  return {
+    rates: data.rates,
+    rateUpdatedAt,
+    fetchedAt: new Date(),
+  };
 }

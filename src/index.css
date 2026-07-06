@@ -828,6 +828,43 @@ body {
   background: rgba(46, 204, 113, 0.14);
 }
 
+.currency-refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.currency-meta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.currency-meta-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.currency-meta-label {
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.currency-meta-updating {
+  color: #2ecc71;
+}
+
+.currency-refresh-error {
+  margin-top: 12px;
+}
+
 /* ── History panel ── */
 .history-badge {
   color: #74b9ff;
