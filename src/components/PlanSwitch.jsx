@@ -24,7 +24,12 @@ export function PlanSwitch({ plan, onAction }) {
           aria-selected={plan === tab.id}
           aria-label={tab.fullLabel ?? tab.label}
           title={tab.fullLabel ?? tab.label}
-          onClick={() => onAction("set-plan", tab.id)}
+          onClick={(e) => {
+            onAction("set-plan", tab.id);
+            e.currentTarget.blur();
+          }}
+          onPointerUp={(e) => e.currentTarget.blur()}
+          onPointerLeave={(e) => e.currentTarget.blur()}
         >
           {tab.label}
         </button>

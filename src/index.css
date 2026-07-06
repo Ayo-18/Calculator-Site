@@ -17,6 +17,8 @@
   --hud-teal: #3ddcc1;
   --hud-amber: #e8a33d;
   --hud-key: #0e141b;
+  --btn-press-bg: rgba(61, 220, 193, 0.16);
+  --btn-press-border: rgba(61, 220, 193, 0.4);
 }
 
 body {
@@ -68,21 +70,6 @@ body {
   position: absolute;
 }
 
-@keyframes hud-scan {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100%);
-  }
-}
-
-.glow-text {
-  text-shadow:
-    0 0 8px currentColor,
-    0 0 22px currentColor;
-}
-
 .calculator {
   position: relative;
   z-index: 1;
@@ -91,9 +78,7 @@ body {
   border: 1px solid var(--hud-border);
   border-radius: 8px;
   padding: 20px;
-  box-shadow:
-    0 0 40px rgba(61, 220, 193, 0.06),
-    0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -131,12 +116,13 @@ body {
   letter-spacing: inherit;
   cursor: pointer;
   padding: 4px 0;
-  transition: color 0.15s ease, text-shadow 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 .hud-sys-btn:hover {
   color: #fff;
-  text-shadow: 0 0 8px rgba(61, 220, 193, 0.5);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hud-sys-btn:focus {
@@ -235,6 +221,8 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: color 0.25s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .plan-btn.active {
@@ -251,21 +239,10 @@ body {
   left: 4px;
   width: calc(50% - 4px);
   height: calc(100% - 8px);
-  background: var(--hud-amber);
-  border-radius: 4px;
-  box-shadow: 0 0 16px rgba(232, 163, 61, 0.35);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-  pointer-events: none;
-}
-
-.calculator[data-plan="scientific"] .plan-slider {
   background: var(--hud-teal);
-  box-shadow: 0 0 16px rgba(61, 220, 193, 0.35);
-}
-
-.calculator[data-plan="engineering"] .plan-slider {
-  background: #7c9eff;
-  box-shadow: 0 0 16px rgba(124, 158, 255, 0.35);
+  border-radius: 4px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
 /* ── Display ── */
@@ -282,15 +259,6 @@ body {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
-}
-
-.hud-scanline {
-  position: absolute;
-  inset-inline: 0;
-  height: 2rem;
-  background: linear-gradient(to bottom, rgba(61, 220, 193, 0.1), transparent);
-  animation: hud-scan 4s linear infinite;
-  pointer-events: none;
 }
 
 .expression {
@@ -364,7 +332,6 @@ body {
 .memory-bar.active {
   opacity: 1;
   color: var(--hud-teal);
-  text-shadow: 0 0 8px rgba(61, 220, 193, 0.45);
 }
 
 /* ── Side-by-side body — equal panels ── */
@@ -444,18 +411,17 @@ body {
   font-weight: 400;
   cursor: pointer;
   background: var(--hud-key);
-  transition: transform 100ms ease, background 100ms ease, box-shadow 100ms ease, border-color 100ms ease;
+  transition: transform 100ms ease, background 100ms ease, border-color 100ms ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.btn:active {
+.btn:active,
+.btn.btn-press-flash {
   transform: scale(0.95);
-}
-
-.btn.btn-hud-flash {
-  background: rgba(61, 220, 193, 0.15);
-  box-shadow: 0 0 12px rgba(61, 220, 193, 0.5);
+  background: var(--btn-press-bg) !important;
+  border-color: var(--btn-press-border) !important;
 }
 
 .btn:focus {
@@ -463,7 +429,8 @@ body {
 }
 
 .btn:focus-visible {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
 }
 
 .btn-sci {
@@ -475,11 +442,6 @@ body {
   border-radius: 4px;
 }
 
-.btn-sci:hover {
-  background: rgba(61, 220, 193, 0.1);
-  border-color: rgba(61, 220, 193, 0.45);
-}
-
 .btn-deg {
   background: var(--hud-key);
   color: var(--hud-teal);
@@ -487,10 +449,6 @@ body {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-}
-
-.btn-deg:hover {
-  background: rgba(61, 220, 193, 0.1);
 }
 
 .btn-deg.rad {
@@ -505,19 +463,11 @@ body {
   border-color: var(--hud-border);
 }
 
-.btn-num:hover {
-  background: #141c24;
-}
-
 .btn-fn {
   background: var(--hud-key);
   color: var(--hud-teal);
   border-color: rgba(61, 220, 193, 0.2);
   font-size: 1rem;
-}
-
-.btn-fn:hover {
-  background: rgba(61, 220, 193, 0.08);
 }
 
 .btn-op {
@@ -528,27 +478,36 @@ body {
   box-shadow: none;
 }
 
-.btn-op:hover {
-  background: rgba(232, 163, 61, 0.08);
-  border-color: rgba(232, 163, 61, 0.55);
-}
-
-.btn-op:active {
-  background: rgba(232, 163, 61, 0.14);
-}
-
 .btn-equals {
   background: var(--hud-amber);
   color: var(--hud-bg);
   border-color: var(--hud-amber);
   font-size: 1.35rem;
   font-weight: 600;
-  box-shadow: 0 0 20px rgba(232, 163, 61, 0.4);
 }
 
-.btn-equals:hover {
-  background: #f0b04d;
-  box-shadow: 0 0 24px rgba(232, 163, 61, 0.55);
+@media (hover: hover) {
+  .btn:hover {
+    background: var(--btn-press-bg);
+    border-color: var(--btn-press-border);
+  }
+}
+
+@media (hover: none) {
+  .btn:hover {
+    background: var(--hud-key);
+    border-color: inherit;
+  }
+
+  .btn-equals:hover {
+    background: var(--hud-amber);
+    border-color: var(--hud-amber);
+  }
+
+  .btn-deg.rad:hover {
+    background: rgba(232, 163, 61, 0.12);
+    border-color: rgba(232, 163, 61, 0.4);
+  }
 }
 
 /* Small screens: stack panels, keep equal width */

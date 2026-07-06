@@ -48,6 +48,8 @@ export default function Calculator() {
                 setOverlay("history");
                 e.currentTarget.blur();
               }}
+              onPointerUp={(e) => e.currentTarget.blur()}
+              onPointerLeave={(e) => e.currentTarget.blur()}
               aria-label="Calculation history"
               title="History"
             >
@@ -62,6 +64,8 @@ export default function Calculator() {
                 setOverlay("currency");
                 e.currentTarget.blur();
               }}
+              onPointerUp={(e) => e.currentTarget.blur()}
+              onPointerLeave={(e) => e.currentTarget.blur()}
               aria-label="Currency converter"
               title="Currency converter"
             >

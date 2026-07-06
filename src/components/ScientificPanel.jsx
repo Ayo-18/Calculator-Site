@@ -42,6 +42,8 @@ export function ScientificPanel({ plan, angleMode, onAction }) {
                 title="Switch Degrees / Radians"
                 onClick={(e) => {
                   onAction("toggle-angle");
+                  e.currentTarget.classList.add("btn-press-flash");
+                  setTimeout(() => e.currentTarget.classList.remove("btn-press-flash"), 120);
                   e.currentTarget.blur();
                 }}
               >

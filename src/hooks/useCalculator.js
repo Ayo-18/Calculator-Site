@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   formatDisplay,
   computeOperation,
@@ -22,6 +22,29 @@ const INITIAL_STATE = {
 };
 
 const VALID_PLANS = ["standard", "scientific", "engineering"];
+const CALC_PLANS = new Set(["standard", "scientific"]);
+
+function snapshotCalcState(state) {
+  return {
+    currentValue: state.currentValue,
+    previousValue: state.previousValue,
+    operator: state.operator,
+    shouldResetDisplay: state.shouldResetDisplay,
+    historyLine: state.historyLine,
+    angleMode: state.angleMode,
+  };
+}
+
+function freshCalcSlice(state) {
+  return {
+    currentValue: "0",
+    previousValue: "",
+    operator: null,
+    shouldResetDisplay: false,
+    historyLine: "",
+    angleMode: state.angleMode,
+  };
+}
 
 function loadPlan() {
   try {
@@ -62,14 +85,35 @@ function pushHistoryEntry(history, expression, result) {
 export function useCalculator(suppressKeyboard = false) {
   const [plan, setPlanState] = useState(loadPlan);
   const [state, setState] = useState(() => ({ ...INITIAL_STATE, history: loadHistory() }));
+  const modeStatesRef = useRef({ standard: null, scientific: null });
 
   const setPlan = useCallback((nextPlan) => {
-    setPlanState(nextPlan);
-    try {
-      localStorage.setItem("calculatorPlan", nextPlan);
-    } catch {
-      /* ignore */
-    }
+    setPlanState((prevPlan) => {
+      if (prevPlan !== nextPlan) {
+        setState((prev) => {
+          if (CALC_PLANS.has(prevPlan)) {
+            modeStatesRef.current[prevPlan] = snapshotCalcState(prev);
+          }
+
+          if (!CALC_PLANS.has(nextPlan)) {
+            return prev;
+          }
+
+          const cached = modeStatesRef.current[nextPlan];
+          return {
+            ...prev,
+            ...(cached ?? freshCalcSlice(prev)),
+          };
+        });
+      }
+
+      try {
+        localStorage.setItem("calculatorPlan", nextPlan);
+      } catch {
+        /* ignore */
+      }
+      return nextPlan;
+    });
   }, []);
 
   const clearAll = useCallback(() => {

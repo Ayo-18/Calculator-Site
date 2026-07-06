@@ -1,13 +1,24 @@
 export function CalcButton({ action, value, label, className = "", onAction }) {
+  const flashPress = (el) => {
+    el.classList.add("btn-press-flash");
+    setTimeout(() => el.classList.remove("btn-press-flash"), 120);
+    el.blur();
+  };
+
   const handleClick = (e) => {
     onAction(action, value);
-    e.currentTarget.classList.add("btn-hud-flash");
-    setTimeout(() => e.currentTarget.classList.remove("btn-hud-flash"), 180);
-    e.currentTarget.blur();
+    flashPress(e.currentTarget);
   };
 
   return (
-    <button type="button" className={`btn ${className}`} onClick={handleClick}>
+    <button
+      type="button"
+      className={`btn ${className}`}
+      onClick={handleClick}
+      onPointerUp={(e) => e.currentTarget.blur()}
+      onPointerLeave={(e) => e.currentTarget.blur()}
+      onPointerCancel={(e) => e.currentTarget.blur()}
+    >
       {label}
     </button>
   );
