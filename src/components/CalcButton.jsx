@@ -1,15 +1,13 @@
 export function CalcButton({ action, value, label, className = "", onAction }) {
+  const handleClick = (e) => {
+    onAction(action, value);
+    e.currentTarget.classList.add("btn-hud-flash");
+    setTimeout(() => e.currentTarget.classList.remove("btn-hud-flash"), 180);
+    e.currentTarget.blur();
+  };
+
   return (
-    <button
-      type="button"
-      className={`btn ${className}`}
-      onClick={(e) => {
-        onAction(action, value);
-        // Release the mobile :active/:focus press-state immediately so the
-        // button visually "lets go" instead of appearing stuck/held down.
-        e.currentTarget.blur();
-      }}
-    >
+    <button type="button" className={`btn ${className}`} onClick={handleClick}>
       {label}
     </button>
   );

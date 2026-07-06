@@ -11,6 +11,12 @@
   --btn-size: 58px;
   --btn-gap: 10px;
   --keypad-rows: 5;
+  --hud-bg: #05070a;
+  --hud-panel: #0b0f14;
+  --hud-border: #1e2a35;
+  --hud-teal: #3ddcc1;
+  --hud-amber: #e8a33d;
+  --hud-key: #0e141b;
 }
 
 body {
@@ -19,20 +25,75 @@ body {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  background: var(--hud-bg);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
+/* ── HUD shell ── */
+.hud-shell {
+  position: relative;
+  width: 100%;
+  min-height: min(100vh, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow: hidden;
+}
+
+.hud-circuit-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(61, 220, 193, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61, 220, 193, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.hud-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, var(--hud-bg) 100%);
+}
+
+.hud-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud-corners span {
+  position: absolute;
+}
+
+@keyframes hud-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.glow-text {
+  text-shadow:
+    0 0 8px currentColor,
+    0 0 22px currentColor;
+}
+
 .calculator {
+  position: relative;
+  z-index: 1;
   width: min(var(--panel-width), 92vw);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
   padding: 20px;
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
+    0 0 40px rgba(61, 220, 193, 0.06),
+    0 20px 60px rgba(0, 0, 0, 0.6);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -44,7 +105,73 @@ body {
   width: min(680px, 98vw);
 }
 
-/* ── Header toolbar (history + currency icons, grouped together) ── */
+/* ── HUD status bar (history + mode badge + currency) ── */
+.hud-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--hud-teal);
+}
+
+.hud-sys-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: var(--hud-teal);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.hud-sys-btn:hover {
+  color: #fff;
+  text-shadow: 0 0 8px rgba(61, 220, 193, 0.5);
+}
+
+.hud-sys-btn:focus {
+  outline: none;
+}
+
+.hud-sys-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.hud-sys-btn span {
+  display: none;
+}
+
+.hud-mode-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px solid rgba(232, 163, 61, 0.4);
+  border-radius: 4px;
+  color: var(--hud-amber);
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+@media (min-width: 420px) {
+  .hud-sys-btn span {
+    display: inline;
+  }
+}
+
+/* legacy toolbar (unused) */
 .calculator-toolbar {
   display: flex;
   align-items: center;
@@ -86,8 +213,9 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 14px;
+  background: var(--hud-key);
+  border: 1px solid var(--hud-border);
+  border-radius: 6px;
   padding: 4px;
   margin-bottom: 16px;
 }
@@ -97,22 +225,24 @@ body {
   z-index: 1;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 0.72rem;
+  color: rgba(61, 220, 193, 0.45);
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 10px 8px;
-  border-radius: 10px;
+  border-radius: 4px;
   cursor: pointer;
   transition: color 0.25s ease;
 }
 
 .plan-btn.active {
-  color: #fff;
+  color: var(--hud-bg);
 }
 
 .plan-btn:hover:not(.active) {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--hud-teal);
 }
 
 .plan-slider {
@@ -121,52 +251,73 @@ body {
   left: 4px;
   width: calc(50% - 4px);
   height: calc(100% - 8px);
-  background: linear-gradient(145deg, #4a6fa5, #3d5a80);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--hud-amber);
+  border-radius: 4px;
+  box-shadow: 0 0 16px rgba(232, 163, 61, 0.35);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   pointer-events: none;
 }
 
 .calculator[data-plan="scientific"] .plan-slider {
-  background: linear-gradient(145deg, #6c5ce7, #5b4cdb);
+  background: var(--hud-teal);
+  box-shadow: 0 0 16px rgba(61, 220, 193, 0.35);
 }
 
 .calculator[data-plan="engineering"] .plan-slider {
-  background: linear-gradient(145deg, #e8a33d, #c47f17);
+  background: #7c9eff;
+  box-shadow: 0 0 16px rgba(124, 158, 255, 0.35);
 }
 
 /* ── Display ── */
 .display {
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 16px;
+  position: relative;
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 4px;
   padding: 16px 20px;
   margin-bottom: 8px;
   text-align: right;
-  min-height: 96px;
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
 }
 
+.hud-scanline {
+  position: absolute;
+  inset-inline: 0;
+  height: 2rem;
+  background: linear-gradient(to bottom, rgba(61, 220, 193, 0.1), transparent);
+  animation: hud-scan 4s linear infinite;
+  pointer-events: none;
+}
+
 .expression {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.45);
+  position: relative;
+  z-index: 1;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.75rem;
+  color: rgba(61, 220, 193, 0.45);
   min-height: 1.4em;
   word-break: break-all;
   margin-bottom: 2px;
+  letter-spacing: 0.06em;
 }
 
 .preview {
-  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.75rem;
   font-weight: 400;
-  color: rgba(85, 239, 196, 0.55);
+  color: rgba(61, 220, 193, 0.7);
   min-height: 0;
   max-height: 0;
   overflow: hidden;
   word-break: break-all;
   opacity: 0;
+  letter-spacing: 0.08em;
   transition: opacity 0.15s ease, max-height 0.15s ease, margin 0.15s ease;
 }
 
@@ -178,12 +329,22 @@ body {
 }
 
 .result {
+  position: relative;
+  z-index: 1;
+  font-family: ui-monospace, "Cascadia Code", monospace;
   font-size: 2.6rem;
   font-weight: 300;
-  color: #fff;
+  color: var(--hud-amber);
   line-height: 1.1;
   word-break: break-all;
   transition: font-size 0.15s ease;
+}
+
+.hud-memory {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgba(61, 220, 193, 0.55);
 }
 
 .result.shrink {
@@ -191,9 +352,9 @@ body {
 }
 
 .memory-bar {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  color: rgba(255, 159, 67, 0.9);
+  color: rgba(61, 220, 193, 0.55);
   min-height: 1em;
   padding: 0 4px 12px;
   opacity: 0;
@@ -202,6 +363,8 @@ body {
 
 .memory-bar.active {
   opacity: 1;
+  color: var(--hud-teal);
+  text-shadow: 0 0 8px rgba(61, 220, 193, 0.45);
 }
 
 /* ── Side-by-side body — equal panels ── */
@@ -271,21 +434,28 @@ body {
 }
 
 .btn {
-  border: none;
-  border-radius: 50%;
+  border: 1px solid var(--hud-border);
+  border-radius: 4px;
   height: var(--btn-size);
   min-height: var(--btn-size);
   max-height: var(--btn-size);
-  font-size: 1.25rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 1.1rem;
   font-weight: 400;
   cursor: pointer;
-  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  background: var(--hud-key);
+  transition: transform 100ms ease, background 100ms ease, box-shadow 100ms ease, border-color 100ms ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .btn:active {
-  transform: scale(0.93);
+  transform: scale(0.95);
+}
+
+.btn.btn-hud-flash {
+  background: rgba(61, 220, 193, 0.15);
+  box-shadow: 0 0 12px rgba(61, 220, 193, 0.5);
 }
 
 .btn:focus {
@@ -297,80 +467,88 @@ body {
 }
 
 .btn-sci {
-  background: rgba(100, 149, 237, 0.15);
-  color: #9ec5fe;
-  font-size: 0.82rem;
+  background: var(--hud-key);
+  color: rgba(61, 220, 193, 0.85);
+  border-color: rgba(61, 220, 193, 0.25);
+  font-size: 0.72rem;
   font-weight: 500;
-  border-radius: 50%;
+  border-radius: 4px;
 }
 
 .btn-sci:hover {
-  background: rgba(100, 149, 237, 0.28);
+  background: rgba(61, 220, 193, 0.1);
+  border-color: rgba(61, 220, 193, 0.45);
 }
 
 .btn-deg {
-  background: rgba(168, 216, 255, 0.15);
-  color: #a8d8ff;
-  font-size: 0.78rem;
+  background: var(--hud-key);
+  color: var(--hud-teal);
+  border-color: rgba(61, 220, 193, 0.35);
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .btn-deg:hover {
-  background: rgba(168, 216, 255, 0.28);
+  background: rgba(61, 220, 193, 0.1);
 }
 
 .btn-deg.rad {
-  background: rgba(255, 159, 67, 0.25);
-  color: #ffb366;
+  background: rgba(232, 163, 61, 0.12);
+  color: var(--hud-amber);
+  border-color: rgba(232, 163, 61, 0.4);
 }
 
 .btn-num {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--hud-key);
+  color: #e6edf3;
+  border-color: var(--hud-border);
 }
 
 .btn-num:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: #141c24;
 }
 
 .btn-fn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #a8d8ff;
+  background: var(--hud-key);
+  color: var(--hud-teal);
+  border-color: rgba(61, 220, 193, 0.2);
   font-size: 1rem;
 }
 
 .btn-fn:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(61, 220, 193, 0.08);
 }
 
 .btn-op {
-  background: linear-gradient(145deg, #ff9f43, #ee5a24);
-  color: #fff;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
+  background: var(--hud-key);
+  color: var(--hud-amber);
+  border-color: rgba(232, 163, 61, 0.33);
+  font-size: 1.35rem;
+  box-shadow: none;
 }
 
 .btn-op:hover {
-  background: linear-gradient(145deg, #ffb366, #ff6b35);
+  background: rgba(232, 163, 61, 0.08);
+  border-color: rgba(232, 163, 61, 0.55);
 }
 
-/* Samsung-style tap feedback: a quick darker flash that releases the
-   instant you lift your finger, instead of staying inverted/"held" while
-   the operator is pending — the expression line above already shows that. */
 .btn-op:active {
-  background: linear-gradient(145deg, #d35400, #b8460c);
+  background: rgba(232, 163, 61, 0.14);
 }
 
 .btn-equals {
-  background: linear-gradient(145deg, #00b894, #00a085);
-  color: #fff;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+  background: var(--hud-amber);
+  color: var(--hud-bg);
+  border-color: var(--hud-amber);
+  font-size: 1.35rem;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(232, 163, 61, 0.4);
 }
 
 .btn-equals:hover {
-  background: linear-gradient(145deg, #55efc4, #00b894);
+  background: #f0b04d;
+  box-shadow: 0 0 24px rgba(232, 163, 61, 0.55);
 }
 
 /* Small screens: stack panels, keep equal width */
